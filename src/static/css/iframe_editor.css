@@ -122,7 +122,7 @@ body.doesWrap:not(.noprewrap) > div{
   white-space: pre-wrap;
 }
 
-#innerdocbody {
+#innerdocbody, .innerdocbody {
   padding-top: 1px; /* important for some reason? */
   padding-right: 10px;
   padding-bottom: 8px;

@@ -283,6 +283,7 @@ function Ace2Inner() {
                 } else {
                     anchorStyle.color = null;
                 }
+               
             }
         }
     }

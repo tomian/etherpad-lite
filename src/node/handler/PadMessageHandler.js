@@ -240,7 +240,7 @@ exports.handleMessage = function (client, message)
                 handleChatMessage(client, message);
             }
             else if (message.data.type == "CLIENT_BROADCAST") {
-                messageLogger.warn(message);
+//                messageLogger.warn(message);
                 handleClientBroadcastMessage(client, message);
             }
             else if (message.data.type == "GET_CHAT_MESSAGES") {
