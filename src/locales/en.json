@@ -110,6 +110,7 @@
   "pad.share.link": "Link",
   "pad.share.emebdcode": "Embed URL",
   "pad.chat": "Chat",
+  "pad.chat.sticktoscreen.title": "Stick chat to screen",
   "pad.chat.title": "Open the chat for this pad.",
   "pad.chat.loadmessages": "Load more messages",
 
