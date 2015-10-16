@@ -1,5 +1,5 @@
 /**
- * This code is mostly from the old Etherpad. Please help us to comment this code. 
+ * This code is mostly from the old Etherpad. Please help us to comment this code.
  * This helps other people to understand this code better and helps them to improve it.
  * TL;DR COMMENTS ON THIS FILE ARE HIGHLY APPRECIATED
  */
@@ -424,7 +424,7 @@ function handshake() {
     callback: '#mycolorpickerpreview',
     width: 220
   });
-  // Bind the read only button  
+  // Bind the read only button
   $('#readonlyinput').on('click', function() {
     padeditbar.setEmbedLinks();
   });
@@ -484,7 +484,7 @@ var pad = {
   switchToPad: function(padId) {
     var newHref = new RegExp(/.*\/p\/[^\/]+/).exec(document.location.pathname) || clientVars.padId;
     newHref = newHref[0];
-    if (options != null) {
+    if (options && options != null) {
       newHref = newHref + '?' + options;
     }
 
@@ -752,7 +752,7 @@ var pad = {
       pad.diagnosticInfo.padId = pad.getPadId();
       pad.diagnosticInfo.socket = {};
 
-      //we filter non objects from the socket object and put them in the diagnosticInfo 
+      //we filter non objects from the socket object and put them in the diagnosticInfo
       //this ensures we have no cyclic data - this allows us to stringify the data
       for (var i in socket.socket) {
         var value = socket.socket[i];
