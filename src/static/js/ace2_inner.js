@@ -5164,8 +5164,14 @@ function Ace2Inner() {
             $(elem).removeClass(className);
     }
 
-    function focus()
-    {
+    var focusCount=0; 
+    function focus() {
+
+        // first focus is disabled
+        if (focusCount === 0) {
+            ++focusCount;
+            return;
+        }
         window.focus();
     }
 
