@@ -59,7 +59,7 @@
 	"pad.importExport.abiword.innerHTML": "Sie können nur aus Klartext oder HTML-Formaten importieren. Für mehr erweiterte Importfunktionen <a href=\"https://github.com/ether/etherpad-lite/wiki/How-to-enable-importing-and-exporting-different-file-formats-in-Ubuntu-or-OpenSuse-or-SLES-with-AbiWord\">installieren Sie bitte abiword</a>.",
 	"pad.modals.connected": "Verbunden.",
 	"pad.modals.reconnecting": "Text ist bereits auf einem anderen TeamButler geöffnet - einen Moment",
-	"pad.modals.forcereconnect": "Erneut Verbinden",
+	"pad.modals.forcereconnect": "Text hier öffnen",
 	"pad.modals.userdup": "In einem anderen Fenster geöffnet",
 	"pad.modals.userdup.explanation": "Dieses Pad scheint in mehr als einem Browser-Fenster auf diesem Computer geöffnet zu sein.",
 	"pad.modals.userdup.advice": "Um dieses Fenster zu benutzen, verbinden Sie bitte erneut.",
