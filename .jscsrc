@@ -1,0 +1,8 @@
+{
+	"maxErrors": 1000,
+	"preset": "idiomatic",
+	"excludeFiles": ["node_modules/**"],
+        "requireSpacesInsideParentheses": false,
+        "requireCamelCaseOrUpperCaseIdentifiers":"ignoreProperties",
+        "maximumLineLength:":200
+}
