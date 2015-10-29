@@ -518,6 +518,9 @@ function makeContentCollector(collectStyles, abrowser, apool, domInterface, clas
       {
         var styl = dom.nodeAttr(node, "style");
         var cls = dom.nodeAttr(node, "class");
+        var alignAttr = dom.nodeAttr(node, "align");
+        var colorAttr = dom.nodeAttr(node, "color");
+        
         var isPre = (tname == "pre");
         if ((!isPre) && abrowser.safari)
         {
@@ -528,13 +531,17 @@ function makeContentCollector(collectStyles, abrowser, apool, domInterface, clas
         var oldAuthorOrNull = null;
         if (collectStyles)
         {
-          hooks.callAll('collectContentPre', {
-            cc: cc,
-            state: state,
-            tname: tname,
-            styl: styl,
-            cls: cls
-          });
+            hooks.callAll('collectContentPre', {
+                cc: cc,
+                state: state,
+                tname: tname,
+                styl: styl,
+                cls: cls,
+                htmlAttribs: {
+                    'align': alignAttr,
+                    'color': colorAttr
+                }
+            });
           if (tname == "b" || (styl && /\bfont-weight:\s*bold\b/i.exec(styl)) || tname == "strong")
           {
             cc.doAttrib(state, "bold");
