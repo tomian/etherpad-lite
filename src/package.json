@@ -66,9 +66,6 @@
   "devDependencies": {
     "browser-sync": "^2.9.11",
     "gulp": "^3.9.0",
-    "gulp-run": "^1.6.11",
-    "gulp-shell": "^0.5.1",
-    "gulp-start-process": "^1.1.1",
     "gulp-watch": "^4.3.5",
     "ps-tree": "^1.0.1",
     "wd": "0.3.11"
