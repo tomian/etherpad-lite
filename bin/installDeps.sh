@@ -53,7 +53,7 @@ fi
 if [ ! $NODE_V_MINOR = "v0.10" ] && [ ! $NODE_V_MINOR = "v0.11" ] && [ ! $NODE_V_MINOR = "v0.12" ]; then
   if [ ! $IOJS_VERSION ]; then
     echo "You're running a wrong version of node, or io.js is not installed. You're using $NODE_VERSION, we need v0.10.x, v0.11.x or v0.12.x" >&2
-    exit 1
+    #exit 1
   fi
 fi
 
