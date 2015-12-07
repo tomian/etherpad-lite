@@ -100,7 +100,7 @@ function makeContentCollector(collectStyles, abrowser, apool, domInterface, clas
   function textify(str)
   {
     return sanitizeUnicode(
-    str.replace(/\n/g, '').replace(/[\n\r ]/g, ' ').replace(/\xa0/g, ' ').replace(/\t/g, '        '));
+    str.replace(/(\n | \n)/g, ' ').replace(/[\n\r ]/g, ' ').replace(/\xa0/g, ' ').replace(/\t/g, '        '));
   }
 
   function getAssoc(node, name)
@@ -520,7 +520,8 @@ function makeContentCollector(collectStyles, abrowser, apool, domInterface, clas
         var cls = dom.nodeAttr(node, "class");
         var alignAttr = dom.nodeAttr(node, "align");
         var colorAttr = dom.nodeAttr(node, "color");
-        
+        var bgColorAttr = dom.nodeAttr(node, "background");
+
         var isPre = (tname == "pre");
         if ((!isPre) && abrowser.safari)
         {
@@ -539,6 +540,7 @@ function makeContentCollector(collectStyles, abrowser, apool, domInterface, clas
                 cls: cls,
                 htmlAttribs: {
                     'align': alignAttr,
+                    'background': bgColorAttr,
                     'color': colorAttr
                 }
             });

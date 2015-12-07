@@ -238,18 +238,16 @@ exports.handleMessage = function (client, message)
                 handleUserInfoUpdate(client, message);
             } else if (message.data.type == "CHAT_MESSAGE") {
                 handleChatMessage(client, message);
-            }
-            else if (message.data.type == "CLIENT_BROADCAST") {
+            } else if (message.data.type == "CLIENT_BROADCAST") {
 //                messageLogger.warn(message);
                 handleClientBroadcastMessage(client, message);
-            }
-            else if (message.data.type == "GET_CHAT_MESSAGES") {
+            } else if (message.data.type == "GET_CHAT_MESSAGES") {
                 handleGetChatMessages(client, message);
             } else if (message.data.type == "SAVE_REVISION") {
                 handleSaveRevisionMessage(client, message);
             } else if (message.data.type == "CLIENT_MESSAGE" &&
-                message.data.payload != null &&
-                message.data.payload.type == "suggestUserName") {
+                    message.data.payload != null &&
+                    message.data.payload.type == "suggestUserName") {
                 handleSuggestUserName(client, message);
             } else {
                 messageLogger.warn("Dropped message, unknown COLLABROOM Data  Type " + message.data.type);
@@ -317,6 +315,8 @@ exports.handleMessage = function (client, message)
     }
 }
 
+
+
 function handleClientBroadcastMessage(client, message)
 {
     var time = new Date().getTime();
@@ -326,6 +326,40 @@ function handleClientBroadcastMessage(client, message)
 
     var pad;
     var userName;
+    
+    //handle cursor broadcast for highlighting
+    if(message.data.subtype==='AUTHOR_SELECTION_RANGE'){
+        broadcastMsg(function(){
+           messageLogger.info('BROADCAST AUTHOR_SELECTION_RANGE ' + userId +
+                   ' ' + padId); 
+        });
+        return;
+    }
+
+    function broadcastMsg(callback)
+    {
+        delete message.data.type;
+
+        var data = _.extend({
+            userId: userId,
+            userName: userName,
+            time: time,
+        }, message.data);
+
+        var finalMsg = {
+            type: "COLLABROOM",
+            data: {
+                type: "CLIENT_BROADCAST",
+                data: data
+            }
+        };
+
+        //broadcast the chat message to everyone on the pad
+        socketio.sockets.in(padId).json.send(finalMsg);
+
+        callback();
+    }
+
 
     async.series([
         //get the pad
@@ -350,29 +384,7 @@ function handleClientBroadcastMessage(client, message)
             });
         },
         //save the chat message and broadcast it
-        function (callback)
-        {
-            delete message.data.type;
-            
-            var data = _.extend({
-                userId: userId,
-                userName: userName,
-                time: time,
-            }, message.data);
-
-            var finalMsg = {
-                type: "COLLABROOM",
-                data: {
-                    type: "CLIENT_BROADCAST",
-                    data: data
-                }
-            };
-
-            //broadcast the chat message to everyone on the pad
-            socketio.sockets.in(padId).json.send(finalMsg);
-
-            callback();
-        }
+        broadcastMsg
     ], function (err)
     {
         ERR(err);
@@ -668,7 +680,7 @@ function handleUserInfoUpdate(client, message)
 function handleUserChanges(data, cb)
 {
     var client = data.client
-        , message = data.message
+            , message = data.message
 
     // This one's no longer pending, as we're gonna process it now
     stats.counter('pendingEdits').dec()
@@ -743,7 +755,7 @@ function handleUserChanges(data, cb)
 
                 // Validate all added 'author' attribs to be the same value as the current user
                 var iterator = Changeset.opIterator(Changeset.unpack(changeset).ops)
-                    , op
+                        , op
                 while (iterator.hasNext()) {
                     op = iterator.next()
 
@@ -767,8 +779,7 @@ function handleUserChanges(data, cb)
 
                 //Afaik, it copies the new attributes from the changeset, to the global Attribute Pool
                 changeset = Changeset.moveOpsToNewPool(changeset, wireApool, pad.pool);
-            }
-            catch (e)
+            } catch (e)
             {
                 // There is an error in this changeset, so just refuse it
                 client.json.send({disconnect: "badChangeset"});
@@ -785,49 +796,49 @@ function handleUserChanges(data, cb)
             // Update the changeset so that it can be applied to the latest revision.
             //https://github.com/caolan/async#whilst
             async.whilst(
-                function () {
-                    return r < pad.getHeadRevisionNumber();
-                },
-                function (callback)
-                {
-                    r++;
-
-                    pad.getRevisionChangeset(r, function (err, c)
+                    function () {
+                        return r < pad.getHeadRevisionNumber();
+                    },
+                    function (callback)
                     {
-                        if (ERR(err, callback))
-                            return;
+                        r++;
 
-                        // At this point, both "c" (from the pad) and "changeset" (from the
-                        // client) are relative to revision r - 1. The follow function
-                        // rebases "changeset" so that it is relative to revision r
-                        // and can be applied after "c".
-                        try
+                        pad.getRevisionChangeset(r, function (err, c)
                         {
-                            // a changeset can be based on an old revision with the same changes in it
-                            // prevent eplite from accepting it TODO: better send the client a NEW_CHANGES
-                            // of that revision
-                            if (baseRev + 1 == r && c == changeset) {
+                            if (ERR(err, callback))
+                                return;
+
+                            // At this point, both "c" (from the pad) and "changeset" (from the
+                            // client) are relative to revision r - 1. The follow function
+                            // rebases "changeset" so that it is relative to revision r
+                            // and can be applied after "c".
+                            try
+                            {
+                                // a changeset can be based on an old revision with the same changes in it
+                                // prevent eplite from accepting it TODO: better send the client a NEW_CHANGES
+                                // of that revision
+                                if (baseRev + 1 == r && c == changeset) {
+                                    client.json.send({disconnect: "badChangeset"});
+                                    stats.meter('failedChangesets').mark();
+                                    return callback(new Error("Won't apply USER_CHANGES, because it contains an already accepted changeset"));
+                                }
+                                changeset = Changeset.follow(c, changeset, false, apool);
+                            } catch (e) {
                                 client.json.send({disconnect: "badChangeset"});
                                 stats.meter('failedChangesets').mark();
-                                return callback(new Error("Won't apply USER_CHANGES, because it contains an already accepted changeset"));
+                                return callback(new Error("Can't apply USER_CHANGES, because " + e.message));
                             }
-                            changeset = Changeset.follow(c, changeset, false, apool);
-                        } catch (e) {
-                            client.json.send({disconnect: "badChangeset"});
-                            stats.meter('failedChangesets').mark();
-                            return callback(new Error("Can't apply USER_CHANGES, because " + e.message));
-                        }
 
-                        if ((r - baseRev) % 200 == 0) { // don't let the stack get too deep
-                            async.nextTick(callback);
-                        } else {
-                            callback(null);
-                        }
-                    });
-                },
-                //use the callback of the series function
-                callback
-                );
+                            if ((r - baseRev) % 200 == 0) { // don't let the stack get too deep
+                                async.nextTick(callback);
+                            } else {
+                                callback(null);
+                            }
+                        });
+                    },
+                    //use the callback of the series function
+                    callback
+                    );
         },
         //do correction changesets, and send it to all users
         function (callback)
@@ -844,8 +855,7 @@ function handleUserChanges(data, cb)
             try
             {
                 pad.appendRevision(changeset, thisSession.author);
-            }
-            catch (e)
+            } catch (e)
             {
                 client.json.send({disconnect: "badChangeset"});
                 stats.meter('failedChangesets').mark();
@@ -904,61 +914,60 @@ exports.updatePadClients = function (pad, callback)
         //https://github.com/caolan/async#whilst
         //send them all new changesets
         async.whilst(
-            function () {
-                return sessioninfos[sid] && sessioninfos[sid].rev < pad.getHeadRevisionNumber()
-            },
-            function (callback)
-            {
-                var r = sessioninfos[sid].rev + 1;
+                function () {
+                    return sessioninfos[sid] && sessioninfos[sid].rev < pad.getHeadRevisionNumber()
+                },
+                function (callback)
+                {
+                    var r = sessioninfos[sid].rev + 1;
 
-                async.waterfall([
-                    function (callback) {
-                        if (revCache[r])
-                            callback(null, revCache[r]);
-                        else
-                            pad.getRevision(r, callback);
-                    },
-                    function (revision, callback)
-                    {
-                        revCache[r] = revision;
-
-                        var author = revision.meta.author,
-                            revChangeset = revision.changeset,
-                            currentTime = revision.meta.timestamp;
-
-                        // next if session has not been deleted
-                        if (sessioninfos[sid] == null)
-                            return callback(null);
-
-                        if (author == sessioninfos[sid].author)
+                    async.waterfall([
+                        function (callback) {
+                            if (revCache[r])
+                                callback(null, revCache[r]);
+                            else
+                                pad.getRevision(r, callback);
+                        },
+                        function (revision, callback)
                         {
-                            client.json.send({"type": "COLLABROOM", "data": {type: "ACCEPT_COMMIT", newRev: r}});
-                        }
-                        else
-                        {
-                            var forWire = Changeset.prepareForWire(revChangeset, pad.pool);
-                            var wireMsg = {"type": "COLLABROOM",
-                                "data": {type: "NEW_CHANGES",
-                                    newRev: r,
-                                    changeset: forWire.translated,
-                                    apool: forWire.pool,
-                                    author: author,
-                                    currentTime: currentTime,
-                                    timeDelta: currentTime - sessioninfos[sid].time
-                                }};
+                            revCache[r] = revision;
 
-                            client.json.send(wireMsg);
+                            var author = revision.meta.author,
+                                    revChangeset = revision.changeset,
+                                    currentTime = revision.meta.timestamp;
+
+                            // next if session has not been deleted
+                            if (sessioninfos[sid] == null)
+                                return callback(null);
+
+                            if (author == sessioninfos[sid].author)
+                            {
+                                client.json.send({"type": "COLLABROOM", "data": {type: "ACCEPT_COMMIT", newRev: r}});
+                            } else
+                            {
+                                var forWire = Changeset.prepareForWire(revChangeset, pad.pool);
+                                var wireMsg = {"type": "COLLABROOM",
+                                    "data": {type: "NEW_CHANGES",
+                                        newRev: r,
+                                        changeset: forWire.translated,
+                                        apool: forWire.pool,
+                                        author: author,
+                                        currentTime: currentTime,
+                                        timeDelta: currentTime - sessioninfos[sid].time
+                                    }};
+
+                                client.json.send(wireMsg);
+                            }
+                            if (sessioninfos[sid]) {
+                                sessioninfos[sid].time = currentTime;
+                                sessioninfos[sid].rev = r;
+                            }
+                            callback(null);
                         }
-                        if (sessioninfos[sid]) {
-                            sessioninfos[sid].time = currentTime;
-                            sessioninfos[sid].rev = r;
-                        }
-                        callback(null);
-                    }
-                ], callback);
-            },
-            callback
-            );
+                    ], callback);
+                },
+                callback
+                );
     }, callback);
 }
 
@@ -987,8 +996,7 @@ function _correctMarkersInPad(atext, apool) {
                 }
                 offset++;
             }
-        }
-        else {
+        } else {
             offset += op.chars;
         }
     }
@@ -1042,12 +1050,12 @@ function createSessionInfo(client, message)
     // the sessionId of this connection is still valid
     // since it could have been deleted by the API.
     sessioninfos[client.id].auth =
-        {
-            sessionID: message.sessionID,
-            padID: message.padId,
-            token: message.token,
-            password: message.password
-        };
+            {
+                sessionID: message.sessionID,
+                padID: message.padId,
+                token: message.token,
+                password: message.password
+            };
 }
 
 /**
@@ -1233,8 +1241,7 @@ function handleClientReady(client, message)
 
             if (pad.head > 0) {
                 accessLogger.info('[ENTER] Pad "' + padIds.padId + '": Client ' + client.id + ' with IP "' + ip + '" entered the pad');
-            }
-            else if (pad.head == 0) {
+            } else if (pad.head == 0) {
                 accessLogger.info('[CREATE] Pad "' + padIds.padId + '": Client ' + client.id + ' with IP "' + ip + '" created the pad');
             }
 
@@ -1609,8 +1616,7 @@ function getChangesetInfo(padId, startNum, endNum, granularity, callback)
                 if (compositeStart == 0)
                 {
                     t1 = revisionDate[0];
-                }
-                else
+                } else
                 {
                     t1 = revisionDate[compositeStart - 1];
                 }
@@ -1675,8 +1681,7 @@ function getPadLines(padId, revNum, callback)
                     atext = _atext;
                     callback();
                 });
-            }
-            else
+            } else
             {
                 atext = Changeset.makeAText("\n");
                 callback(null);
@@ -1767,14 +1772,14 @@ function composePadChangesets(padId, startNum, endNum, callback)
             callback(null);
         }
     ],
-        //return err and changeset
-            function (err)
-            {
-                if (ERR(err, callback))
-                    return;
-                callback(null, changeset);
-            });
-    }
+            //return err and changeset
+                    function (err)
+                    {
+                        if (ERR(err, callback))
+                            return;
+                        callback(null, changeset);
+                    });
+        }
 
 /**
  * Get the number of users in a pad
