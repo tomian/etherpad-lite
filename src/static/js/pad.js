@@ -503,7 +503,8 @@ var pad = {
         }
         console.log('switching to pad', padId, newHref);
 
-        if (window.history && window.history.pushState)
+        //NOTE forced reload, solves all problems with import, reverse proxy
+        if (false && window.history && window.history.pushState)
         {
             $('#chattext p').remove(); //clear the chat messages
             window.history.pushState("", "", newHref);
