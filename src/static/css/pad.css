@@ -672,7 +672,7 @@ table#otheruserstable {
 #exportColumn{
 
   /*TB: disabled for now*/
-  /*display:none;*/
+  display:none;
   margin-top:20px;
 }
 .exporttype {
