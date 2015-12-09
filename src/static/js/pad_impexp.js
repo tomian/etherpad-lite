@@ -79,16 +79,16 @@ var padimpexp = (function () {
 
                 //NOTE triggering form subit does not work, button works
                 //$('#importform').trigger("submit");
-                 $('#importsubmitinput').click();
+                $('#importsubmitinput').click();
 
             } else {
                 requestStatus = 2
             }
             //debugger;
 
-            window.setTimeout(function () {
-                requestStatus = false; //allow another request
-            }, 300)
+            //window.setTimeout(function () {
+            //    requestStatus = false; //allow another request
+            //}, 300)
 
 
         }
@@ -119,13 +119,16 @@ var padimpexp = (function () {
         }
 
         if (requestStatus === 1) {
+
             console.log('submit', ev);
+            requestStatus = false; //allow another request
             doSubmit();
             return true;
         }
 
-        return false;
+        requestStatus = false; //allow another request
 
+        return false;
 
         //var ret = window.confirm(html10n.get("pad.impexp.confirmimport"));
         //if (ret) {

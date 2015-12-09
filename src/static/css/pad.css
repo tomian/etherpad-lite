@@ -189,7 +189,7 @@ a img {
   left:0px;
   right:250px;
 }
-  
+
 .toolbar ul.menu_right {
   right:0px;
 }
@@ -670,6 +670,9 @@ table#otheruserstable {
   margin-top: 2px;
 }
 #exportColumn{
+
+  /*TB: disabled for now*/
+  /*display:none;*/
   margin-top:20px;
 }
 .exporttype {
@@ -1040,7 +1043,7 @@ input[type=checkbox] {
     left:0px;
     right:100px;
   }
-  
+
   .toolbar ul.menu_right {
     right:0px;
   }
@@ -1102,7 +1105,7 @@ input[type=checkbox] {
       background: none !important
     }
     li[data-key="showusers"] > a {
-      
+
       margin-top:-10px;
       padding-top:2px !important;
       line-height:20px;

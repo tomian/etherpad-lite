@@ -528,7 +528,8 @@ function setupGlobalExceptionHandler() {
       var errObj = {errorInfo: JSON.stringify({errorId: errorId, msg: msg, url: window.location.href, linenumber: linenumber, userAgent: navigator.userAgent})};
       var loc = document.location;
       var url = loc.protocol + "//" + loc.hostname + ":" + loc.port + "/" + loc.pathname.substr(1, loc.pathname.indexOf("/p/")) + "jserror";
- 
+
+      console.warn('logging to server' ,url, errObj);
       $.post(url, errObj);
  
       return false;

@@ -241,6 +241,7 @@ function makeChangesetTracker(scheduler, apool, aceCallbacksProvider)
     {
       if (!submittedChangeset)
       {
+        console.warn("applySubmittedChangesToBase: no submitted changes to apply");
         // violation of protocol; use prepareUserChangeset first
         throw new Error("applySubmittedChangesToBase: no submitted changes to apply");
       }
