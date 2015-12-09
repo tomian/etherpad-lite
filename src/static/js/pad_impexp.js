@@ -39,6 +39,9 @@ var padimpexp = (function () {
     }
 
     function doSubmit() {
+
+        $('#importmessagefail').fadeOut('fast');
+
         currentImportTimer = window.setTimeout(function () {
             if (!currentImportTimer) {
                 return;
@@ -62,13 +65,73 @@ var padimpexp = (function () {
         $('#importstatusball').show();
     }
 
-    function fileInputSubmit() {
-        $('#importmessagefail').fadeOut("fast");
-        var ret = window.confirm(html10n.get("pad.impexp.confirmimport"));
-        if (ret) {
-            doSubmit();
+    var listenerAttached = false;
+    var requestStatus = false;
+
+    function handleConfirmMessage(event) {
+        var data = event.data;
+        var payload = data.payload;
+        if (data.payloadType === 'IMPORT_REQUEST_RESPONSE') {
+            console.log('FRAME CONFIRM MSG', payload);
+
+            if (payload.RESPONSE === 'OK') {
+                requestStatus = 1
+
+                //NOTE triggering form subit does not work, button works
+                //$('#importform').trigger("submit");
+                 $('#importsubmitinput').click();
+
+            } else {
+                requestStatus = 2
+            }
+            //debugger;
+
+            window.setTimeout(function () {
+                requestStatus = false; //allow another request
+            }, 300)
+
+
         }
-        return ret;
+    }
+
+    function fileInputSubmit(ev) {
+
+        //doSubmit();
+        //return true;
+
+        $('#importmessagefail').fadeOut("fast");
+
+        if (!listenerAttached) {
+            window.top.addEventListener("message", handleConfirmMessage, false);
+            listenerAttached = true;
+        }
+
+        if (!requestStatus) {
+            requestStatus = true;
+            ev.preventDefault();
+            window.top.postMessage({
+                payloadType: 'IMPORT_REQUEST',
+                payload: {
+                    padID: pad.getPadId()
+                }
+            }, '*');
+            return false;
+        }
+
+        if (requestStatus === 1) {
+            console.log('submit', ev);
+            doSubmit();
+            return true;
+        }
+
+        return false;
+
+
+        //var ret = window.confirm(html10n.get("pad.impexp.confirmimport"));
+        //if (ret) {
+        //    doSubmit();
+        //}
+        //return ret;
     }
 
     function importFailed(msg) {
@@ -210,7 +273,7 @@ var padimpexp = (function () {
 
             addImportFrames();
             $("#importfileinput").change(fileInputUpdated);
-            $('#importform').unbind("submit").submit(fileInputSubmit);
+            $('#importform').off("submit").on('submit', fileInputSubmit);
             $('.disabledexport').click(cantExport);
         },
         handleFrameCall: function (directDatabaseAccess, status) {
