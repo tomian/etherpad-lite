@@ -486,11 +486,22 @@ var pad = {
         sendClientReady(isReconnect, messageType);
     },
     switchToPad: function (padId) {
+
         var options = document.location.href.split('?')[1];
-        var newHref = padId;
+
+        //var newHref = padId;
+
+        //Fix for reverse proxy URI
+        //https://github.com/ether/etherpad-lite/issues/2570
+
+        var newHref = new RegExp(/.*\/p\/[^\/]+/).exec(document.location.pathname) || clientVars.padId;
+        var pad_root_url = document.location.protocol + '//' + document.location.host;
+        newHref = pad_root_url + newHref[0];
+
         if (typeof options !== "undefined" && options !== null) {
             newHref = newHref + '?' + options;
         }
+        console.log('switching to pad', padId, newHref);
 
         if (window.history && window.history.pushState)
         {
