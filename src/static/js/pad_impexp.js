@@ -280,10 +280,13 @@ var padimpexp = (function () {
             $('.disabledexport').click(cantExport);
         },
         handleFrameCall: function (directDatabaseAccess, status) {
-            if (status !== "ok") {
+            if (status === "ok") {
+                if (directDatabaseAccess) {
+                    pad.switchToPad(clientVars.padId);
+                }
+            } else {
                 importFailed(status);
             }
-            if (directDatabaseAccess) pad.switchToPad(clientVars.padId);
             importDone();
         },
         disable: function () {
