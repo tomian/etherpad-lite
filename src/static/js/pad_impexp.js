@@ -82,7 +82,7 @@ var padimpexp = (function () {
                 $('#importsubmitinput').click();
 
             } else {
-                requestStatus = 2
+                requestStatus = false;
             }
             //debugger;
 
