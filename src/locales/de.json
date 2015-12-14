@@ -46,7 +46,7 @@
 	"pad.settings.fontType.monospaced": "Monospace",
 	"pad.settings.globalView": "Gemeinsame Ansicht",
 	"pad.settings.language": "Sprache:",
-	"pad.importExport.import_export": "Import/Export",
+	"pad.importExport.import_export": "Word-Dokument importieren",
 	"pad.importExport.import": "Text-Datei oder Dokument hochladen",
 	"pad.importExport.importSuccessful": "Erfolgreich!",
 	"pad.importExport.export": "Aktuelles Pad exportieren als:",
